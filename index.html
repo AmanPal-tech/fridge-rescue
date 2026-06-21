@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fridge Rescue</title>
+<style>
+  :root {
+    --bg: #EEF1EB;
+    --bg-dot: #DDE3D6;
+    --card: #FBFBF8;
+    --ink: #13201A;
+    --ink-soft: #5E695F;
+    --stamp: #E0432B;
+    --stamp-bg: #FCE1D9;
+    --sage: #2F6B4F;
+    --sage-bg: #DCEEE2;
+    --carrot: #E8902A;
+    --carrot-bg: #FBEAD2;
+    --line: #D7DACE;
+    --grad1: #FFB199;
+    --grad2: #FFE29A;
+    --grad3: #B6E388;
+    --grad4: #74C7B8;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(120deg, var(--grad1), var(--grad2), var(--grad3), var(--grad4));
+    background-size: 300% 300%;
+    animation: gradientShift 16s ease infinite;
+    font-family: var(--sans);
+    color: var(--ink);
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px 56px;
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .sheet {
+    width: 100%;
+    max-width: 620px;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size: 20px 20px;
+    border-radius: 28px;
+    padding: 30px 24px 38px;
+    box-shadow: 0 30px 70px -18px rgba(19,32,26,0.4);
+  }
+
+  .hero-panel {
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 22px;
+    padding: 14px 10px 0;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .hero-illustration { width: 100%; height: auto; display: block; }
+
+  .float-icon { animation: float-bob 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+  @keyframes float-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+  .masthead { text-align: center; margin-bottom: 18px; }
+  .masthead .eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--sage);
+    margin-bottom: 8px;
+  }
+  .eyebrow svg { animation: spark-pulse 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+  @keyframes spark-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.6; } }
+
+  .masthead h1 { font-family: var(--sans); font-weight: 800; font-size: 38px; letter-spacing: -0.02em; margin: 0 0 8px; color: var(--ink); }
+  .masthead h1 .hl {
+    background-image: linear-gradient(var(--carrot-bg), var(--carrot-bg));
+    background-repeat: no-repeat; background-size: 0% 0.42em; background-position: 0 78%;
+    padding: 0 3px; animation: hl-draw 0.7s 0.5s ease forwards;
+  }
+  @keyframes hl-draw { to { background-size: 100% 0.42em; } }
+  .masthead p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+
+  .settings {
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 16px;
+    margin-bottom: 16px;
+    font-size: 13.5px;
+  }
+  .settings summary {
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings .settings-body { margin-top: 12px; }
+  .settings input[type="password"] {
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 9px 11px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    margin-top: 6px;
+    margin-bottom: 9px;
+  }
+  .settings input[type="password"]:focus { border-color: var(--ink); outline: none; }
+  .settings .note { color: var(--ink-soft); font-size: 12.5px; line-height: 1.5; }
+  .settings .save-key {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 13px;
+    margin-top: 10px;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--card);
+    cursor: pointer;
+  }
+  .settings .save-key:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(19,32,26,0.25); }
+  .key-status {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+  .key-status.set { color: var(--sage); background: var(--sage-bg); }
+  .key-status.unset { color: var(--stamp); background: var(--stamp-bg); }
+
+  .ticket {
+    position: relative;
+    background: var(--card);
+    box-shadow: 0 1px 1px rgba(19,32,26,0.03), 0 14px 30px -10px rgba(19,32,26,0.16);
+    padding: 32px 28px;
+  }
+  .ticket::before, .ticket::after {
+    content: "";
+    position: absolute; left: 0; right: 0; height: 20px;
+    background: radial-gradient(circle 10px at 10px 10px, var(--bg) 10px, transparent 10.5px) repeat-x;
+    background-size: 20px 20px;
+  }
+  .ticket::before { top: -10px; }
+  .ticket::after { bottom: -10px; }
+
+  label {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft);
+    margin-bottom: 9px;
+  }
+  label svg { flex-shrink: 0; }
+
+  .input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+
+  input[type="text"], select {
+    font-family: var(--sans); font-size: 15px; padding: 11px 13px;
+    border: 1.5px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
+    transition: border-color 0.15s ease;
+  }
+  input[type="text"]:focus, select:focus { border-color: var(--ink); outline: none; }
+  .input-row input[type="text"] { flex: 1; min-width: 0; }
+
+  .input-row button, .go-button {
+    font-family: var(--sans); font-weight: 700; border: none; border-radius: 8px;
+    background: var(--ink); color: var(--card); cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .input-row button { font-size: 14px; padding: 0 18px; }
+  .input-row button:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(19,32,26,0.25); }
+  .input-row button:active, .go-button:active { transform: translateY(0); box-shadow: none; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 30px; margin-bottom: 22px; padding-bottom: 20px; border-bottom: 1px dashed var(--line); }
+  .empty-state { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); border: 1.5px dashed var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; }
+
+  @keyframes chip-in { from { opacity: 0; transform: scale(0.9) translateY(2px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .chip { display: inline-flex; align-items: stretch; font-size: 13.5px; background: #fff; border: 1.5px solid var(--line); border-left: 4px solid var(--sage); border-radius: 8px; overflow: hidden; animation: chip-in 0.18s ease; }
+  .chip.soon { border-left-color: var(--stamp); }
+  .chip .chip-name { padding: 6px 4px 6px 10px; display: flex; align-items: center; white-space: nowrap; }
+  .chip .soon-toggle { font-family: var(--mono); font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: var(--sage-bg); color: var(--sage); border: none; padding: 0 9px; cursor: pointer; white-space: nowrap; }
+  .chip.soon .soon-toggle { background: var(--stamp-bg); color: var(--stamp); }
+  .chip .remove-btn { font-family: var(--sans); background: none; border: none; border-left: 1px solid var(--line); color: var(--ink-soft); cursor: pointer; font-size: 13px; padding: 0 9px; }
+  .chip .remove-btn:hover { background: var(--bg); color: var(--ink); }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  select { width: 100%; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%); background-position: calc(100% - 18px) center, calc(100% - 13px) center; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+
+  .go-button { width: 100%; font-size: 15.5px; padding: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; animation: btn-glow 2.6s ease-in-out infinite; }
+  @keyframes btn-glow { 0%, 100% { box-shadow: 0 4px 14px rgba(224,67,43,0); } 50% { box-shadow: 0 6px 20px rgba(232,144,42,0.4); } }
+  .go-button:hover { animation-play-state: paused; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(19,32,26,0.25); }
+  .go-button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; animation: none; }
+
+  .status { margin-top: 16px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-soft); text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .dots span { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--ink-soft); animation: dot-pulse 1.1s infinite ease-in-out; }
+  .dots span:nth-child(2) { animation-delay: 0.15s; }
+  .dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes dot-pulse { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+  .error-box { margin-top: 18px; padding: 12px 14px; background: var(--stamp-bg); color: var(--stamp); border-radius: 8px; font-size: 13.5px; border-left: 3px solid var(--stamp); }
+
+  @keyframes reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .recipe { margin-top: 26px; padding-top: 24px; border-top: 1px dashed var(--line); animation: reveal 0.25s ease; }
+  .recipe-eyebrow { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sage); margin-bottom: 6px; }
+  .recipe h2 { font-family: var(--sans); font-weight: 800; font-size: 23px; letter-spacing: -0.01em; margin: 0 0 10px; line-height: 1.25; }
+  .recipe .desc { color: var(--ink-soft); font-size: 14.5px; line-height: 1.55; margin-bottom: 18px; }
+  .recipe h3 { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin: 18px 0 9px; }
+  .recipe ul { margin: 0; padding-left: 0; list-style: none; }
+  .recipe ul li { font-size: 14.5px; padding: 4px 0; display: flex; align-items: center; gap: 9px; }
+  .recipe ul li svg { flex-shrink: 0; }
+  .recipe ol { margin: 0; padding-left: 0; list-style: none; counter-reset: step; }
+  .recipe ol li { font-size: 14.5px; line-height: 1.6; padding: 6px 0 6px 32px; position: relative; counter-increment: step; }
+  .recipe ol li::before { content: counter(step); position: absolute; left: 0; top: 6px; font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--card); background: var(--ink); width: 19px; height: 19px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+  .tip { margin-top: 20px; padding: 13px 14px; background: var(--sage-bg); color: var(--sage); border-radius: 8px; font-size: 13.5px; line-height: 1.5; border-left: 3px solid var(--sage); }
+  .tip strong { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .subtotal { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--ink); display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .barcode { margin-top: 22px; height: 28px; background: repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 3px, var(--ink) 3px 5px, transparent 5px 6px, var(--ink) 6px 8px, transparent 8px 11px, var(--ink) 11px 12px, transparent 12px 15px); opacity: 0.85; }
+  .barcode-label { text-align: center; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.15em; color: var(--ink-soft); margin-top: 5px; }
+
+  footer { text-align: center; margin-top: 18px; font-size: 12px; color: var(--ink-soft); }
+
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    body { background-position: 0% 50%; }
+    .masthead h1 .hl { background-size: 100% 0.42em; }
+    .go-button { box-shadow: none; }
+  }
+
+  @media (max-width: 480px) {
+    .row-2 { grid-template-columns: 1fr; }
+    .masthead h1 { font-size: 30px; }
+    .ticket { padding: 26px 18px; }
+    .sheet { padding: 24px 16px 30px; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <symbol id="ic-apple" viewBox="0 0 40 40">
+    <circle cx="20" cy="23" r="13" fill="#E0432B"/>
+    <ellipse cx="15" cy="18" rx="3.4" ry="5.5" fill="#fff" opacity="0.22"/>
+    <rect x="18.4" y="6.5" width="3.2" height="7" rx="1.5" fill="#6B4A2B"/>
+    <path d="M21 8.5 Q28 5 27 12.5 Q21.5 12.5 21 8.5 Z" fill="#2F6B4F"/>
+  </symbol>
+  <symbol id="ic-carrot" viewBox="0 0 40 40">
+    <path d="M20 11 L25.5 11 L21.8 35 Q20 38.5 18.2 35 Z" fill="#E8902A"/>
+    <g stroke="#2F6B4F" stroke-width="2.6" stroke-linecap="round">
+      <line x1="20" y1="11" x2="13.5" y2="3.5"/>
+      <line x1="22.2" y1="11" x2="22.2" y2="2"/>
+      <line x1="24.3" y1="11" x2="29.5" y2="4.5"/>
+    </g>
+  </symbol>
+  <symbol id="ic-tomato" viewBox="0 0 40 40">
+    <circle cx="20" cy="23" r="13" fill="#E0432B"/>
+    <ellipse cx="15" cy="18" rx="3.2" ry="5" fill="#fff" opacity="0.2"/>
+    <g fill="#2F6B4F">
+      <path d="M20 9 L23.5 13.5 L20 12.5 L16.5 13.5 Z"/>
+      <path d="M20 9 L26 11.5 L21.5 13.5 Z"/>
+      <path d="M20 9 L14 11.5 L18.5 13.5 Z"/>
+    </g>
+  </symbol>
+  <symbol id="ic-broccoli" viewBox="0 0 40 40">
+    <rect x="18" y="25" width="4" height="11" rx="1.6" fill="#A9C9A1"/>
+    <g fill="#2F6B4F">
+      <circle cx="20" cy="17" r="9"/>
+      <circle cx="12.5" cy="21" r="6"/>
+      <circle cx="27.5" cy="21" r="6"/>
+      <circle cx="15" cy="12.5" r="5"/>
+      <circle cx="25" cy="12.5" r="5"/>
+    </g>
+  </symbol>
+  <symbol id="ic-pepper" viewBox="0 0 40 40">
+    <path d="M20 13 C29 12 31.5 21 28.5 29 C26 36 18.5 37.5 14.5 32.5 C9.5 26.5 11 16 16.5 13.5 Q18.5 12.5 20 13 Z" fill="#3F9457"/>
+    <ellipse cx="16" cy="20" rx="2.8" ry="4.5" fill="#fff" opacity="0.2"/>
+    <rect x="18.5" y="5.5" width="3" height="8" rx="1.5" fill="#2F6B4F"/>
+  </symbol>
+  <symbol id="ic-grapes" viewBox="0 0 40 40">
+    <g fill="#6A5A9E">
+      <circle cx="15.5" cy="20" r="4"/>
+      <circle cx="22.5" cy="20" r="4"/>
+      <circle cx="19" cy="25.5" r="4"/>
+      <circle cx="13" cy="28" r="4"/>
+      <circle cx="25" cy="28" r="4"/>
+      <circle cx="19" cy="33" r="4"/>
+    </g>
+    <path d="M19 11 Q25 9 24 14.5 Q19 14.5 19 11 Z" fill="#2F6B4F"/>
+    <line x1="19" y1="12" x2="19" y2="18" stroke="#6B4A2B" stroke-width="1.6"/>
+  </symbol>
+  <symbol id="ic-milk" viewBox="0 0 40 40">
+    <path d="M13 14 L27 14 L27 34 Q27 36.5 24.5 36.5 L15.5 36.5 Q13 36.5 13 34 Z" fill="#F3F6F4" stroke="#13201A" stroke-width="1.5"/>
+    <path d="M13 14 L20 7 L27 14 Z" fill="#F3F6F4" stroke="#13201A" stroke-width="1.5" stroke-linejoin="round"/>
+    <rect x="13" y="21" width="14" height="6.5" fill="#5B86A6"/>
+  </symbol>
+  <symbol id="ic-cheese" viewBox="0 0 40 40">
+    <path d="M5 31 L35 31 L35 11 Z" fill="#E8B93A" stroke="#13201A" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="13" cy="25" r="2.1" fill="#fff" opacity="0.55"/>
+    <circle cx="21" cy="20.5" r="1.6" fill="#fff" opacity="0.55"/>
+    <circle cx="26" cy="26.5" r="1.9" fill="#fff" opacity="0.55"/>
+  </symbol>
+  <symbol id="ic-leaf-check" viewBox="0 0 24 24">
+    <path d="M4 13 C4 6.5 9.5 3.5 18.5 3.5 C18.5 12 13 18.5 4 18.5 Z" fill="#2F6B4F"/>
+    <path d="M5.5 17 C9 13.5 12.5 10 17.5 4.5" stroke="#fff" stroke-width="1.3" fill="none" opacity="0.55" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-basket" viewBox="0 0 24 24">
+    <path d="M4 8 L7 8 L9 19 L18 19 L20 9 L8 9" fill="none" stroke="#E0432B" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="10.5" cy="21.5" r="1.4" fill="#E0432B"/>
+    <circle cx="16.5" cy="21.5" r="1.4" fill="#E0432B"/>
+  </symbol>
+  <symbol id="ic-spark" viewBox="0 0 24 24">
+    <path d="M12 2 L13.8 9.2 L21 11 L13.8 12.8 L12 20 L10.2 12.8 L3 11 L10.2 9.2 Z" fill="#2F6B4F"/>
+  </symbol>
+</defs>
+</svg>
+
+<div class="sheet">
+
+  <div class="hero-panel">
+    <svg class="hero-illustration" viewBox="0 0 480 250" aria-hidden="true">
+      <g transform="translate(40,30) rotate(-14)"><g class="float-icon" style="animation-duration:3.4s; animation-delay:0s"><use href="#ic-apple" width="50" height="50"/></g></g>
+      <g transform="translate(372,28) rotate(13)"><g class="float-icon" style="animation-duration:4s; animation-delay:0.3s"><use href="#ic-pepper" width="52" height="52"/></g></g>
+      <g transform="translate(34,168) rotate(15)"><g class="float-icon" style="animation-duration:3.8s; animation-delay:0.6s"><use href="#ic-carrot" width="52" height="52"/></g></g>
+      <g transform="translate(382,172) rotate(-11)"><g class="float-icon" style="animation-duration:3.2s; animation-delay:0.2s"><use href="#ic-tomato" width="50" height="50"/></g></g>
+
+      <rect x="175" y="10" width="130" height="232" rx="18" fill="#FBFBF8" stroke="#13201A" stroke-width="3"/>
+      <rect x="190" y="28" width="100" height="198" rx="9" fill="#DCE6E2" stroke="#13201A" stroke-width="2"/>
+      <line x1="190" y1="62" x2="290" y2="62" stroke="#13201A" stroke-width="2"/>
+      <line x1="190" y1="128" x2="290" y2="128" stroke="#13201A" stroke-width="2"/>
+      <line x1="190" y1="180" x2="290" y2="180" stroke="#13201A" stroke-width="2"/>
+      <rect x="300" y="56" width="7" height="42" rx="3.5" fill="#13201A"/>
+
+      <g transform="translate(198,33) scale(0.62)"><use href="#ic-milk" width="40" height="40"/></g>
+      <g transform="translate(238,35) scale(0.58)"><use href="#ic-cheese" width="40" height="40"/></g>
+      <g transform="translate(199,68) scale(0.62)"><use href="#ic-tomato" width="40" height="40"/></g>
+      <g transform="translate(243,67) scale(0.58)"><use href="#ic-grapes" width="40" height="40"/></g>
+      <g transform="translate(197,134) scale(0.64)"><use href="#ic-carrot" width="40" height="40"/></g>
+      <g transform="translate(243,135) scale(0.6)"><use href="#ic-broccoli" width="40" height="40"/></g>
+    </svg>
+  </div>
+
+  <div class="masthead">
+    <span class="eyebrow"><svg width="13" height="13" viewBox="0 0 24 24"><use href="#ic-spark"/></svg> Food waste rescue tool</span>
+    <h1>Fridge <span class="hl">Rescue</span></h1>
+    <p>Tell it what's on hand. It builds a recipe around using it up.</p>
+  </div>
+
+  <details class="settings" id="settings">
+    <summary>API key settings <span class="key-status unset" id="key-status">not set</span></summary>
+    <div class="settings-body">
+      <label for="api-key">Your Anthropic API key</label>
+      <input type="password" id="api-key" placeholder="sk-ant-...">
+      <div class="note">Get a key at <strong>console.anthropic.com</strong>. It's stored only in your browser's local storage on this device and sent directly to Anthropic's API, never to any third-party server. Anyone using this app needs their own key.</div>
+      <button class="save-key" id="save-key-btn" type="button">Save key</button>
+    </div>
+  </details>
+
+  <div class="ticket">
+    <label for="ingredient-input"><svg width="13" height="13" viewBox="0 0 40 40"><use href="#ic-carrot"/></svg> Add what you have</label>
+    <div class="input-row">
+      <input type="text" id="ingredient-input" placeholder="e.g. bell pepper" autocomplete="off">
+      <button id="add-btn" type="button">Add</button>
+    </div>
+
+    <div class="chips" id="chips"></div>
+
+    <div class="row-2">
+      <div>
+        <label for="dietary">Dietary needs</label>
+        <select id="dietary">
+          <option value="none">None</option>
+          <option value="vegetarian">Vegetarian</option>
+          <option value="vegan">Vegan</option>
+          <option value="gluten-free">Gluten-free</option>
+          <option value="dairy-free">Dairy-free</option>
+        </select>
+      </div>
+      <div>
+        <label for="cuisine">Cuisine lean (optional)</label>
+        <input type="text" id="cuisine" placeholder="e.g. Italian">
+      </div>
+    </div>
+
+    <button class="go-button" id="go-btn" type="button">Find a recipe <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#FBFBF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="status" id="status"></div>
+    <div id="error-area"></div>
+    <div id="recipe-area"></div>
+  </div>
+
+  <footer>Runs entirely in your browser. Source on GitHub.</footer>
+</div>
+
+<script>
+  const chipsEl = document.getElementById('chips');
+  const inputEl = document.getElementById('ingredient-input');
+  const addBtn = document.getElementById('add-btn');
+  const goBtn = document.getElementById('go-btn');
+  const statusEl = document.getElementById('status');
+  const errorArea = document.getElementById('error-area');
+  const recipeArea = document.getElementById('recipe-area');
+  const apiKeyInput = document.getElementById('api-key');
+  const saveKeyBtn = document.getElementById('save-key-btn');
+  const keyStatus = document.getElementById('key-status');
+  const settingsEl = document.getElementById('settings');
+
+  let ingredients = [];
+
+  function loadKey() {
+    const saved = localStorage.getItem('fridgeRescueApiKey');
+    if (saved) {
+      apiKeyInput.value = saved;
+      keyStatus.textContent = 'saved';
+      keyStatus.className = 'key-status set';
+    } else {
+      settingsEl.open = true;
+    }
+  }
+  function saveKey() {
+    const val = apiKeyInput.value.trim();
+    if (!val) return;
+    localStorage.setItem('fridgeRescueApiKey', val);
+    keyStatus.textContent = 'saved';
+    keyStatus.className = 'key-status set';
+    settingsEl.open = false;
+  }
+  saveKeyBtn.onclick = saveKey;
+  loadKey();
+
+  function renderChips() {
+    chipsEl.innerHTML = '';
+    if (ingredients.length === 0) {
+      chipsEl.innerHTML = '<div class="empty-state">Nothing added yet — type an ingredient above and press Add or Enter.</div>';
+      return;
+    }
+    ingredients.forEach((item, i) => {
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (item.soon ? ' soon' : '');
+
+      const name = document.createElement('span');
+      name.className = 'chip-name';
+      name.textContent = item.name;
+      chip.appendChild(name);
+
+      const toggle = document.createElement('button');
+      toggle.className = 'soon-toggle';
+      toggle.type = 'button';
+      toggle.textContent = item.soon ? 'soon' : 'mark soon';
+      toggle.setAttribute('aria-label', 'Toggle expiring soon for ' + item.name);
+      toggle.onclick = () => { ingredients[i].soon = !ingredients[i].soon; renderChips(); };
+      chip.appendChild(toggle);
+
+      const remove = document.createElement('button');
+      remove.className = 'remove-btn';
+      remove.type = 'button';
+      remove.textContent = '×';
+      remove.setAttribute('aria-label', 'Remove ' + item.name);
+      remove.onclick = () => { ingredients.splice(i, 1); renderChips(); };
+      chip.appendChild(remove);
+
+      chipsEl.appendChild(chip);
+    });
+  }
+
+  function addIngredient() {
+    const val = inputEl.value.trim();
+    if (!val) return;
+    ingredients.push({ name: val, soon: false });
+    inputEl.value = '';
+    renderChips();
+    inputEl.focus();
+  }
+
+  addBtn.onclick = addIngredient;
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); addIngredient(); }
+  });
+
+  function buildUserMessage() {
+    const dietary = document.getElementById('dietary').value;
+    const cuisine = document.getElementById('cuisine').value.trim();
+    let lines = ingredients.map(i => `- ${i.name}${i.soon ? ' (expiring soon)' : ''}`);
+    let msg = `Ingredients I have:\n${lines.join('\n')}\n\nDietary needs: ${dietary}`;
+    if (cuisine) msg += `\nCuisine preference: ${cuisine}`;
+    return msg;
+  }
+
+  function extractJson(text) {
+    let cleaned = text.trim();
+    cleaned = cleaned.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '');
+    return JSON.parse(cleaned);
+  }
+
+  function renderRecipe(recipe) {
+    const usesList = recipe.usesFromList || [];
+    const neededList = recipe.additionalNeeded || [];
+    const usesHtml = usesList.map(i => `<li><svg width="15" height="15" viewBox="0 0 24 24"><use href="#ic-leaf-check"/></svg>${i}</li>`).join('');
+    const neededHtml = neededList.map(i => `<li><svg width="15" height="15" viewBox="0 0 24 24"><use href="#ic-basket"/></svg>${i}</li>`).join('');
+    const stepsHtml = (recipe.steps || []).map(s => `<li>${s}</li>`).join('');
+
+    recipeArea.innerHTML = `
+      <div class="recipe">
+        <div class="recipe-eyebrow"><svg width="11" height="11" viewBox="0 0 24 24"><use href="#ic-spark"/></svg>Suggested recipe</div>
+        <h2>${recipe.title || 'Recipe'}</h2>
+        <div class="desc">${recipe.description || ''}</div>
+
+        ${usesHtml ? `<h3>From what you have</h3><ul class="uses">${usesHtml}</ul>` : ''}
+        ${neededHtml ? `<h3>You'll also need</h3><ul class="needed">${neededHtml}</ul>` : ''}
+        ${stepsHtml ? `<h3>Steps</h3><ol>${stepsHtml}</ol>` : ''}
+        ${recipe.tip ? `<div class="tip"><strong>Tip</strong><br>${recipe.tip}</div>` : ''}
+
+        <div class="subtotal">
+          <span>Ingredients rescued</span>
+          <span>${usesList.length} of ${ingredients.length}</span>
+        </div>
+        <div class="barcode"></div>
+        <div class="barcode-label">FRIDGE RESCUE · GENERATED</div>
+      </div>
+    `;
+  }
+
+  async function findRecipe() {
+    errorArea.innerHTML = '';
+    recipeArea.innerHTML = '';
+
+    const apiKey = localStorage.getItem('fridgeRescueApiKey');
+    if (!apiKey) {
+      errorArea.innerHTML = '<div class="error-box">Add your Anthropic API key in the settings above first.</div>';
+      settingsEl.open = true;
+      return;
+    }
+
+    if (ingredients.length === 0) {
+      errorArea.innerHTML = '<div class="error-box">Add at least one ingredient first.</div>';
+      return;
+    }
+
+    goBtn.disabled = true;
+    statusEl.innerHTML = 'Thinking up something good <span class="dots"><span></span><span></span><span></span></span>';
+
+    const systemPrompt = `You are a practical home cooking assistant focused on reducing food waste. Given a list of ingredients the user has, suggest exactly ONE realistic recipe that makes good use of as many listed ingredients as possible, prioritizing any marked as expiring soon. Keep additional ingredients needed to a minimum and prefer common pantry staples. Respond with ONLY valid JSON, no markdown formatting, no code fences, no extra commentary, matching exactly this shape:
+{"title": "string", "description": "one or two sentence string", "usesFromList": ["string"], "additionalNeeded": ["string"], "steps": ["string"], "tip": "string"}`;
+
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: [{ role: "user", content: buildUserMessage() }]
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error.message || 'API returned an error.');
+      }
+
+      const textBlock = (data.content || []).find(b => b.type === 'text');
+      if (!textBlock) throw new Error('No response text received.');
+
+      const recipe = extractJson(textBlock.text);
+      renderRecipe(recipe);
+    } catch (err) {
+      console.error(err);
+      errorArea.innerHTML = `<div class="error-box">Couldn't generate a recipe (${err.message || 'unknown error'}). Check your API key and try again.</div>`;
+    } finally {
+      goBtn.disabled = false;
+      statusEl.innerHTML = '';
+    }
+  }
+
+  goBtn.onclick = findRecipe;
+  renderChips();
+</script>
+
+</body>
+</html>
