@@ -4,6 +4,8 @@ A small tool that suggests a recipe based on what's already in your kitchen, pri
 
 No backend, no build step. It's a single HTML file that calls the Claude API directly from your browser.
 
+Live Site: https://amanpal-tech.github.io/fridge-rescue/
+
 ## How it works
 
 1. You type in what you have (and flag anything close to expiring)
